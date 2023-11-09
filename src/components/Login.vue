@@ -81,6 +81,7 @@
 
 import bus from 'vue3-eventbus';
 import {ref} from 'vue';
+import axios from 'axios';
 
   export default {
 
@@ -140,12 +141,70 @@ import {ref} from 'vue';
       },
       validate() {
         if (this.$refs.loginForm.validate()) {
-          // submit form to server/API here...
+          axios.create({
+            baseURL: "/auth", // 你的后端API地址,
+            timeout: 10000, // 超时时间（单位：毫秒）,
+            withCredentials: true,
+          }).post(
+            "/api/auth/login", 
+            {
+              username: this.loginEmail,
+              password: "123"
+            }, 
+            {
+              headers: {
+                "Content-Type": "multipart/form-data"
+              }
+            }
+          ).then(
+            response => {
+              // 在这里提取令牌和用户信息并保存中
+              if (response.status == 200) {
+                const respData = response.data.data
+
+                if (respData == "已登录，无需重复登录。") {
+                  // 关闭登陆页面
+                  console.log("Already log in");
+                  bus.emit('closeLogin');
+                  return response;
+                }
+
+                let res= {
+                  accessToken: respData.accessToken,
+                  refreshToken: respData.refreshToken,
+                  userInfo: {
+                    username:respData.username,
+                    userId: respData.userId,
+                  }
+                }
+
+                console.log("logged");
+                console.log(res);
+
+                // 保存结果
+                this.$store.commit("LOGIN", res);
+
+                // 关闭登陆页面
+                bus.emit('closeLogin');
+              }
+              return response;
+            }
+          ).catch(err => {
+            console.error(err);
+          });
         }
       },
-      closeLogin() {
-        bus.emit('closeLogin');
-      }
+      logout() {
+
+      },
+      clearStatus() {
+      // 则清空登陆状态
+        this.$store.commit("LOGIN", {
+          accessToken: "",
+          refreshToken: "",
+          userId: -1,
+        })
+      },
     }
   };
 </script>

@@ -103,7 +103,7 @@
 
 <script>
 
-  import { getAllData } from '@/api/request';
+  import api from "@/api/request";
 
   export default {
 
@@ -113,8 +113,10 @@
 
     methods: {
       get_posts() {
-        getAllData().then((res) => {
-
+        return ;
+        
+        api.get("/home")
+        .then((res) => {
           var postViews = new Array(res.data.length);
           for (var i = 0; i<res.data.length; i ++) {
             var post = res.data[i].post;

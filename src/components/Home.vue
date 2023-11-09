@@ -25,8 +25,6 @@ import LeftNav from './LeftNav.vue';
 import Login from './Login.vue';
 import bus from 'vue3-eventbus';
 
-// import {getAllData} from '@/api/request'
-
 export default {
     components: {
         PrettyPost,
@@ -43,7 +41,7 @@ export default {
     methods: {
       closeLogin() {
         bus.emit('closeLogin');
-      }
+      },
     },
 }
 </script>
